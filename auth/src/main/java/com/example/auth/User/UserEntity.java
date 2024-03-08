@@ -1,13 +1,12 @@
-package com.example.auth;
+package com.example.auth.User;
 
 import jakarta.persistence.*;
 import lombok.Data;
 
 @Entity
 @Data
-@Table(name = "user")
+@Table(name = "users")
 public class UserEntity {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -21,7 +20,19 @@ public class UserEntity {
 
     @Column(name = "password")
     private String password;
+    @Column(name = "image",length = 1048576)
+    private byte[] image;
 
+    public byte[] getImage() {
+        return image;
+    }
+
+    public void setImage(byte[] image) {
+        this.image = image;
+    }
+
+    @Column(name = "role", columnDefinition = "BOOLEAN DEFAULT FALSE")
+    private Boolean role;
     public Integer getId() {
         return id;
     }
@@ -44,6 +55,14 @@ public class UserEntity {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public Boolean getRole() {
+        return role;
+    }
+
+    public void setRole(Boolean role) {
+        this.role = role;
     }
 
     public String getPassword() {
