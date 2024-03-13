@@ -1,11 +1,13 @@
 package com.example.auth.User;
 
 import jakarta.transaction.Transactional;
+import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
-import java.util.Optional;
+import java.io.IOException;
+import java.util.*;
 
 @Service
 public class UserService {
@@ -41,5 +43,30 @@ public class UserService {
 
     public List<UserEntity> getAllUsers() {
         return userRepository.findAll();
+    }
+    @Transactional
+    public UserEntity updateUserImage(int userId, MultipartFile image) throws IOException {
+        UserEntity existingUser = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        existingUser.setImage(image.getBytes());
+        return userRepository.save(existingUser);
+    }
+    public UserEntity getUserById(int userId) {
+        Optional<UserEntity> userOptional = userRepository.findById(userId);
+        return userOptional.orElse(null);
+    }
+
+    public Map<Integer, List<byte[]>> getImagesForUserIds(List<Integer> userIds) {
+        Map<Integer, List<byte[]>> userImagesMap = new HashMap<>();
+
+        for (Integer userId : userIds) {
+            Optional<UserEntity> userOptional = userRepository.findById(userId);
+            userOptional.ifPresent(user -> {
+                byte[] image = user.getImage();
+                userImagesMap.put(userId, Collections.singletonList(image));
+            });
+        }
+        return userImagesMap;
     }
 }

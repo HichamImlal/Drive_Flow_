@@ -1,4 +1,4 @@
-package com.example.auth.Post;
+package com.example.auth.Car;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -6,15 +6,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
-public class PostController {
-    private final PostService postService;
+public class CarController {
+    private final CarService postService;
 
     @Autowired
-    public PostController(PostService postService) {
+    public CarController(CarService postService) {
         this.postService = postService;
     }
 
@@ -24,38 +24,49 @@ public class PostController {
 //        return new ResponseEntity<>(addedPost, HttpStatus.CREATED);
 //    }
 @PostMapping("/addPost")
-public ResponseEntity<PostEntity> savedPost(@RequestParam("mark") String mark,
+public ResponseEntity<CarEntity> savedPost(@RequestParam("mark") String mark,
                                            @RequestParam("price") double price,
                                            @RequestParam("id_admin") Long dminId,
                                            @RequestParam("model") String model,
                                            @RequestParam("description") String description,
+                                           @RequestParam("available") Boolean available,
                                            @RequestParam("image") MultipartFile image) {
     try {
-        PostEntity post = new PostEntity();
-        post.setMark(mark);
-        post.setAdminId(dminId);
-        post.setPrice(price);
-        post.setModel(model);
-        post.setDescription(description);
-        post.setImage(image.getBytes());
-        PostEntity savedPost = postService.addPost(post);
+        CarEntity Car = new CarEntity();
+        Car.setMark(mark);
+        Car.setAdminId(dminId);
+        Car.setPrice(price);
+        Car.setModel(model);
+        Car.setDescription(description);
+        Car.setAvailable(available);
+        Car.setImage(image.getBytes());
+        CarEntity savedPost = postService.addPost(Car);
         return new ResponseEntity<>(savedPost, HttpStatus.CREATED);
     } catch (Exception e) {
         return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
     @GetMapping("getAllPosts")
-    public ResponseEntity<List<PostEntity>> getAllPosts() {
+    public ResponseEntity<List<CarEntity>> getAllPosts() {
         try {
-            List<PostEntity> posts = postService.getAllPosts();
+            List<CarEntity> posts = postService.getAllPosts();
             return new ResponseEntity<>(posts, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
     @GetMapping("/getByIdAdmin/{adminId}")
-    public ResponseEntity<List<PostEntity>> getPostsByAdminId(@PathVariable Long adminId) {
-        List<PostEntity> posts = postService.getPostsByAdminId(adminId);
-        return ResponseEntity.ok(posts);
+    public ResponseEntity<List<CarEntity>> getPostsByAdminId(@PathVariable Long adminId) {
+        List<CarEntity> cars = postService.getPostsByAdminId(adminId);
+
+        // Filter out cars with availability set to false
+        List<CarEntity> availableCars = cars.stream()
+                .filter(car -> car.isAvailable())
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(availableCars);
+    }
+    @PostMapping("/cars/updateAvailability")
+    public void updateCarAvailability(@RequestParam Long carId) {
+        postService.updateAvailability(carId, false);
     }
 }

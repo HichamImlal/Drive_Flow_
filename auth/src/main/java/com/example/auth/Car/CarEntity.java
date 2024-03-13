@@ -1,10 +1,10 @@
-package com.example.auth.Post;
+package com.example.auth.Car;
 
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "posts")
-public class PostEntity {
+@Table(name = "cars")
+public class CarEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -17,6 +17,16 @@ public class PostEntity {
     private byte[] image;
     @Column(name="id_admin")
     private Long adminId;
+    @Column(name = "available")
+    private Boolean available;
+
+    public Boolean getAvailable() {
+        return available;
+    }
+
+    public void setAvailable(Boolean available) {
+        this.available = available;
+    }
 
     public Long getAdminId() {
         return adminId;
@@ -72,5 +82,8 @@ public class PostEntity {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+    public boolean isAvailable() {
+        return available;
     }
 }
